@@ -28,3 +28,27 @@ def dataset_save(company_name:str , start:str , end = date.today()):
 
 def read_df(df_name):
        return
+
+data = pd.read_excel("dataset_AAPL_2010-01-01.xlsx")
+
+# data = df.head()
+
+start_date = "2010-01-01"
+end_date = "2020-01-01"
+close = data["Close"]
+print(len(close))
+print("/////////////////////////////////////////////////////")
+# Fetch historical stock data
+data = yf.download("AAPL", start=start_date, end=end_date)
+
+print(data.head())
+
+def sma_50(data):
+    """
+    mean of first sma50
+    """
+    data['SMA50'] = data['Close'].rolling(50).mean()
+    return data["SMA50"]
+
+data['SMA50'] = data['Close'].rolling(50).mean()
+print(data["SMA50"])
