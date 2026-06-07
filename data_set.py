@@ -41,7 +41,7 @@ print("/////////////////////////////////////////////////////")
 # Fetch historical stock data
 data = yf.download("AAPL", start=start_date, end=end_date)
 
-print(data.head())
+# print(data.head())
 
 def sma_50(data):
     """
@@ -51,4 +51,5 @@ def sma_50(data):
     return data["SMA50"]
 
 data['SMA50'] = data['Close'].rolling(50).mean()
+print(data.head())
 print(data["SMA50"])
