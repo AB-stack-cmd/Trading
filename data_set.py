@@ -48,10 +48,15 @@ def sma_50(data):
 # print(data["SMA50"])
 # print(data["SMA50"].isna().sum())
 
-def load_data(csv_file):
-      df = pd.read_csv(csv_file)
-      df["Date"] = pd.to_datetime(df["Date"])
-      df.set_index(df["Date"],inplace=True)
+def load_data(excel_file):
+      """
+      reads excel file converst the price columns name to date """
+      df = pd.read_excel(excel_file)
+      df=data.drop([0,1])
+      df['Price'] = pd.to_datetime(df['Price'])
+      df = df.set_index("Price")
+      df.index.name = "Date"
       
       return df
 
+print(load_data("dataset_AAPL_2010-01-01.xlsx"))
