@@ -31,13 +31,12 @@ def read_df(df_name):
 
 data = pd.read_excel("dataset_AAPL_2010-01-01.xlsx")
 
-# data = df.head()
+
 
 start_date = "2010-01-01"
 end_date = "2020-01-01"
 close = data["Close"]
 print(len(close))
-print("/////////////////////////////////////////////////////")
 # Fetch historical stock data
 data = yf.download("AAPL", start=start_date, end=end_date)
 
@@ -46,10 +45,13 @@ data = yf.download("AAPL", start=start_date, end=end_date)
 def sma_50(data):
     """
     mean of first sma50
+    calculating mean of first 50 - 1 
+    shows NaN on the first 49 and mean in 50th 
     """
     data['SMA50'] = data['Close'].rolling(50).mean()
     return data["SMA50"]
 
 data['SMA50'] = data['Close'].rolling(50).mean()
-print(data.head())
-print(data["SMA50"])
+# print(data.head())
+# print(data["SMA50"])
+print(data["SMA50"].isna().sum())
