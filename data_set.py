@@ -4,26 +4,27 @@ from datetime import date
 from sklearn.model_selection import train_test_split
 import numpy as np
 
-def dataset_save(company_name:str , start:str , end = date.today()):
+def dataset_save(stock:str , start:str , end = date.today()):
         """
         saves dataset of the company
 
-        dataset_save("AAPL" , start="2010-01-01") , 
+        example:
+            dataset_save("AAPL" , start="2010-01-01") , 
         end : default as current 
 
         """
 
-        if start == None or len(start)!= 10 or  company_name == None or len(company_name) < 0 :
+        if start == None or len(start)!= 10 or  stock == None or len(stock) < 0 :
                 raise ValueError("please enter valid arguments")
             
-        if isinstance(company_name,str) and isinstance(start,str):
+        if isinstance(stock,str) and isinstance(start,str):
             df = yf.download(
-                company_name,
+                stock,
                 start=start,
                 end = end 
             )
 
-            df.to_excel(f"dataset_{company_name}_{start}.xlsx")
+            df.to_excel(f"dataset_{stock}_{start}.xlsx")
             print("Data saved... ")
 
 def read_df(df_name):
@@ -32,6 +33,10 @@ def read_df(df_name):
 
 
 data = pd.read_excel("dataset_AAPL_2010-01-01.xlsx")
+# print(data.describe())
+# print(data.shape)
+print(data.head())
+df = data.drop([0,1])
 
 
 def sma_50(data):
@@ -46,11 +51,15 @@ def sma_50(data):
 # data['SMA50'] = data['Close'].rolling(50).mean()
 # print(data.head())
 # print(data["SMA50"])
-# print(data["SMA50"].isna().sum())
+# data["SMA50"] = data["Close"].rolling(50).mean()
+# print(data["SMA50"])
 
 def load_data(excel_file):
       """
-      reads excel file converst the price columns name to date """
+       reads excel file converst the price columns name to date 
+        used for only download excel file 
+        file contained were Date is in 3rd column First Row
+    """
       df = pd.read_excel(excel_file)
       df=data.drop([0,1])
       df['Price'] = pd.to_datetime(df['Price'])
@@ -59,4 +68,60 @@ def load_data(excel_file):
       
       return df
 
-print(load_data("dataset_AAPL_2010-01-01.xlsx"))
+def get_stock_features(ticker: str, start: str, end: str) -> pd.DataFrame:
+    """
+    Download stock data and calculate features.
+
+    Returns:
+        DataFrame ready for ML training
+    """
+
+    df = yf.download(
+        ticker,
+        start=start,
+        end=end,
+        auto_adjust=True
+    )
+
+    # Moving Averages
+    df["SMA20"] = df["Close"].rolling(20).mean()
+    df["SMA50"] = df["Close"].rolling(50).mean()
+    df["SMA200"] = df["Close"].rolling(200).mean()
+
+    # Exponential Moving Averages
+    df["EMA20"] = df["Close"].ewm(span=20).mean()
+    df["EMA50"] = df["Close"].ewm(span=50).mean()
+
+    # Daily Returns
+    df["Returns"] = df["Close"].pct_change()
+
+    # Volatility
+    df["Volatility"] = (
+        df["Returns"]
+        .rolling(20)
+        .std()
+    )
+
+    # Volume Change
+    df["Volume_Change"] = (
+        df["Volume"]
+        .pct_change()
+    )
+
+    # Momentum
+    df["Momentum"] = (
+        df["Close"]
+        - df["Close"].shift(10)
+    )
+
+    # Target
+    df["Target"] = (
+        df["Close"].shift(-1)
+        > df["Close"]
+    ).astype(int)
+
+    df.dropna(inplace=True)
+
+    return df
+# print(load_data("dataset_AAPL_2010-01-01.xlsx"))
+
