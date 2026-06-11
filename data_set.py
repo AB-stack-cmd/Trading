@@ -33,9 +33,12 @@ def read_df(df_name):
 
 
 data = pd.read_excel("dataset_AAPL_2010-01-01.xlsx")
+values = data.columns
+
+
 # print(data.describe())
 # print(data.shape)
-print(data.head())
+# print(data.head())
 df = data.drop([0,1])
 
 
@@ -61,7 +64,7 @@ def load_data(excel_file):
         file contained were Date is in 3rd column First Row
     """
       df = pd.read_excel(excel_file)
-      df=data.drop([0,1])
+      df=df.drop([0,1])
       df['Price'] = pd.to_datetime(df['Price'])
       df = df.set_index("Price")
       df.index.name = "Date"
@@ -83,6 +86,7 @@ def get_stock_features(ticker: str, start: str, end: str) -> pd.DataFrame:
         auto_adjust=True
     )
 
+    df =  df.drop([0,1])
     # Moving Averages
     df["SMA20"] = df["Close"].rolling(20).mean()
     df["SMA50"] = df["Close"].rolling(50).mean()
@@ -96,32 +100,26 @@ def get_stock_features(ticker: str, start: str, end: str) -> pd.DataFrame:
     df["Returns"] = df["Close"].pct_change()
 
     # Volatility
-    df["Volatility"] = (
-        df["Returns"]
-        .rolling(20)
-        .std()
-    )
+    df["Volatility"] = (df["Returns"].rolling(20).std())
 
     # Volume Change
-    df["Volume_Change"] = (
-        df["Volume"]
-        .pct_change()
-    )
+    "pct_change used to calculate the first and second value "
+    df["Volume_Change"] = ( df["Volume"].pct_change())
 
-    # Momentum
-    df["Momentum"] = (
-        df["Close"]
-        - df["Close"].shift(10)
-    )
+    # Momentum shift from current to next 9 
+    df["Momentum"] = (df["Close"]- df["Close"].shift(10))
 
     # Target
-    df["Target"] = (
-        df["Close"].shift(-1)
-        > df["Close"]
-    ).astype(int)
+    """colums that stores the  greater values of the close from previous"""
+    df["Target"] = ( df["Close"].shift(-1) > df["Close"])/df["Close"]
 
     df.dropna(inplace=True)
-
+    
+    """ print(load_data("dataset_AAPL_2010-01-01.xlsx"))"""
     return df
-# print(load_data("dataset_AAPL_2010-01-01.xlsx"))
+
+
+
+
+      
 
