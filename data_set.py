@@ -40,6 +40,7 @@ values = data.columns
 # print(data.shape)
 # print(data.head())
 df = data.drop([0,1])
+print(df)
 
 
 def sma_50(data):
@@ -86,7 +87,7 @@ def get_stock_features(ticker: str, start: str, end: str) -> pd.DataFrame:
         auto_adjust=True
     )
 
-    df =  df.drop([0,1])
+    # df =  df.drop([0,1])
     # Moving Averages
     df["SMA20"] = df["Close"].rolling(20).mean()
     df["SMA50"] = df["Close"].rolling(50).mean()
